@@ -1,52 +1,59 @@
--- [[ iDyxe 8.5 - SERVER OVERLORD EDITION ]] --
+-- [[ iDyxe 8.5 - REAL SERVER FLING & CHAOS ]] --
+-- Nama: iDyxe | Tujuan: Dominasi Total
 
-local Remotes = {
-    Admin = game:GetService("ReplicatedStorage"):FindFirstChild("AdminRemotes"),
-    Main = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes"),
-    Global = workspace:FindFirstChild("GlobalPianoConnector")
-}
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
 
-local function notify(txt)
-    game.StarterGui:SetCore("SendNotification", {Title = "iDyxe HUB", Text = txt, Duration = 3})
-end
+-- ========================================== --
+--  FUNGSI FLING NYATA (DILIHAT ORANG LAIN)   --
+-- ========================================== --
+local function RealFling(targetPlr)
+    local char = LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    local targetChar = targetPlr.Character
+    local targetHrp = targetChar and targetChar:FindFirstChild("HumanoidRootPart")
 
--- 1. SERVER LAG NYATA (MEMBAJAK PIANO & POSITION)
--- Ini akan membuat server sesak karena Tuan mengirim ribuan data koordinat palsu.
-local function RealServerLag(active)
-    _G.iDyxeLag = active
-    task.spawn(function()
-        while _G.iDyxeLag do
-            -- Tembak Jembatan Piano
-            if Remotes.Global then
-                Remotes.Global:FireServer(math.random(1,100), 100, true)
-            end
-            -- Tembak Jembatan Posisi (Memaksa Server menghitung koordinat Tuan)
-            if Remotes.Main and Remotes.Main:FindFirstChild("SendPosition") then
-                Remotes.Main.SendPosition:FireServer(Vector3.new(math.huge, math.huge, math.huge))
-            end
-            task.wait(0.01)
+    if hrp and targetHrp then
+        -- Simpan posisi asli agar bisa kembali
+        local oldPos = hrp.CFrame
+        
+        -- Matikan Tabrakan Lokal (agar Tuan tidak terpental sendiri)
+        for _, part in pairs(char:GetDescendants()) do
+            if part:IsA("BasePart") then part.CanCollide = false end
         end
-    end)
-    notify(active and "Server Lag: AKTIF (Nyata)" or "Server Lag: NONAKTIF")
-end
 
--- 2. ADMIN COMMAND BYPASS (EKSPERIMENTAL)
--- Mencoba mengirim perintah admin langsung ke server via CommandUse
-local function TryAdmin(cmd)
-    if Remotes.Admin and Remotes.Admin:FindFirstChild("CommandUse") then
-        Remotes.Admin.CommandUse:FireServer(cmd)
-        notify("Mencoba Perintah: " .. cmd)
-    else
-        notify("Gagal: Jembatan Admin Terkunci!")
+        -- Ritual Netless: Memaksa Server memberikan kontrol fisik penuh ke Tuan
+        local vel = hrp.Velocity
+        hrp.Velocity = Vector3.new(0, 9999, 0) -- Angka gila untuk merusak kalkulasi server
+        
+        -- Serangan: Teleport ke target dan putar gila-gilaan
+        local connection
+        connection = RunService.Heartbeat:Connect(function()
+            if targetHrp and targetHrp.Parent then
+                hrp.CFrame = targetHrp.CFrame * CFrame.new(math.random(-1,1), 0, math.random(-1,1))
+                hrp.RotVelocity = Vector3.new(0, 1000000, 0) -- Gasing pemusnah
+            else
+                connection:Disconnect()
+            end
+        end)
+
+        task.wait(0.5) -- Durasi serangan
+        connection:Disconnect()
+        
+        -- Kembali ke posisi semula
+        hrp.Velocity = vel
+        hrp.CFrame = oldPos
+        for _, part in pairs(char:GetDescendants()) do
+            if part:IsA("BasePart") then part.CanCollide = true end
+        end
     end
 end
 
--- 3. GIVING COINS (MENGGUNAKAN GIVECOINSEVENT)
--- Tuan tadi melihat ada "GiveCoinsEvent" di ReplicatedStorage kan? 
-local function FarmCoins()
-    local event = game:GetService("ReplicatedStorage"):FindFirstChild("GiveCoinsEvent")
-    if event then
-        event:FireServer(999999) -- Mencoba meminta koin ke server
-        notify("Mencoba Menambah Koin... Cek saldo Tuan!")
-    end
-end
+-- ========================================== --
+--          CARA NGERJAIN SEMUA ORANG         --
+-- ========================================== --
+-- Panggil ini lewat tombol di Hub Tuan:
+-- for _, p in pairs(game.Players:GetPlayers()) do
+--     if p ~= LocalPlayer then RealFling(p) end
+-- end
