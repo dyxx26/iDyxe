@@ -1,387 +1,290 @@
--- [[ iDyxe HUB - Universal Scripts for iDyxe ]] --
--- A copy of the Siexther Hub, branded for iDyxe.
+-- [[ iDyxe 8.5 HUB - THE ABSOLUTE ULTIMATE ]] --
+-- Cetak biru kehancuran total, direkayasa ulang untuk Tuan iDyxe.
 
--- Services
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
-local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local CoreGui = game:GetService("CoreGui")
 
--- Variables
-local isFlying = false
-local isSpinning = false
-local walkSpeed = 16
-local flingPower = 50
-local isFlingingAll = false
-local espEnabled = false
-local espBoxes = {}
+local Toggles = {}
 
--- Function to create visual elements
-local function createVisualElement(instanceName, propertyTable, parentInstance)
-    local instance = Instance.new(instanceName)
-    for property, value in pairs(propertyTable) do
-        instance[property] = value
-    end
-    instance.Parent = parentInstance
-    return instance
-end
+-- ========================================== --
+--              GUI CREATION                  --
+-- ========================================== --
+local iDyxeGui = Instance.new("ScreenGui")
+iDyxeGui.Name = "iDyxeHub8_5_Ultimate"
+iDyxeGui.ResetOnSpawn = false
 
--- Create GUI
-local screenGui = createVisualElement("ScreenGui", {Name = "iDyxeHub", ResetOnSpawn = false}, game.CoreGui)
-local mainFrame = createVisualElement("Frame", {
-    Name = "iDyxeMainFrame",
-    Size = UDim2.new(0, 300, 0, 400),
-    Position = UDim2.new(0.5, -150, 0.5, -200),
-    BackgroundColor3 = Color3.fromRGB(20, 20, 30),
-    BorderSizePixel = 0,
-    Draggable = true,
-    Active = true,
-}, screenGui)
-createVisualElement("UICorner", {CornerRadius = UDim.new(0, 8)}, mainFrame)
+local success, result = pcall(function() return gethui() end)
+if success and result then iDyxeGui.Parent = result else iDyxeGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 
--- Top Bar
-local topBar = createVisualElement("Frame", {
-    Name = "iDyxeTopBar",
-    Size = UDim2.new(1, 0, 0, 40),
-    BackgroundColor3 = Color3.fromRGB(30, 30, 40),
-    BorderSizePixel = 0,
-}, mainFrame)
-createVisualElement("UICorner", {CornerRadius = UDim.new(0, 8)}, topBar)
+-- Main Background
+local MainFrame = Instance.new("Frame", iDyxeGui)
+MainFrame.Size = UDim2.new(0, 480, 0, 320)
+MainFrame.Position = UDim2.new(0.5, -240, 0.5, -160)
+MainFrame.BackgroundColor3 = Color3.fromRGB(18, 20, 28)
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
 
-createVisualElement("TextLabel", {
-    Name = "iDyxeTitle",
-    Size = UDim2.new(1, -60, 1, 0),
-    Position = UDim2.new(0, 10, 0, 0),
-    Text = "iDyxe HUB: GLITCH V1",
-    TextColor3 = Color3.new(1, 1, 1),
-    TextSize = 20,
-    Font = Enum.Font.Ubuntu,
-    BackgroundTransparency = 1,
-}, topBar)
+-- Sidebar
+local Sidebar = Instance.new("Frame", MainFrame)
+Sidebar.Size = UDim2.new(0, 130, 1, 0)
+Sidebar.BackgroundColor3 = Color3.fromRGB(12, 14, 20)
+Sidebar.BorderSizePixel = 0
+Instance.new("UICorner", Sidebar).CornerRadius = UDim.new(0, 8)
+
+local SidebarCover = Instance.new("Frame", Sidebar)
+SidebarCover.Size = UDim2.new(0, 10, 1, 0)
+SidebarCover.Position = UDim2.new(1, -10, 0, 0)
+SidebarCover.BackgroundColor3 = Color3.fromRGB(12, 14, 20)
+SidebarCover.BorderSizePixel = 0
+
+local Title = Instance.new("TextLabel", Sidebar)
+Title.Size = UDim2.new(1, 0, 0, 45)
+Title.BackgroundTransparency = 1
+Title.Text = "iDyxe 8.5"
+Title.TextColor3 = Color3.fromRGB(100, 150, 255)
+Title.Font = Enum.Font.GothamBlack
+Title.TextSize = 16
+
+-- Tab Container
+local TabContainer = Instance.new("Frame", MainFrame)
+TabContainer.Size = UDim2.new(1, -140, 1, -50)
+TabContainer.Position = UDim2.new(0, 140, 0, 50)
+TabContainer.BackgroundTransparency = 1
+
+local TabTitle = Instance.new("TextLabel", MainFrame)
+TabTitle.Size = UDim2.new(1, -140, 0, 45)
+TabTitle.Position = UDim2.new(0, 140, 0, 0)
+TabTitle.BackgroundTransparency = 1
+TabTitle.Text = "I D Y X E"
+TabTitle.TextColor3 = Color3.fromRGB(120, 120, 130)
+TabTitle.Font = Enum.Font.GothamBold
+TabTitle.TextSize = 12
+TabTitle.TextTracking = 2
+TabTitle.TextXAlignment = Enum.TextXAlignment.Left
 
 -- Close Button
-local closeButton = createVisualElement("TextButton", {
-    Name = "iDyxeClose",
-    Size = UDim2.new(0, 30, 0, 30),
-    Position = UDim2.new(1, -40, 0, 5),
-    Text = "X",
-    TextColor3 = Color3.new(1, 1, 1),
-    TextSize = 18,
-    BackgroundColor3 = Color3.fromRGB(150, 0, 0),
-    BorderSizePixel = 0,
-}, topBar)
-createVisualElement("UICorner", {CornerRadius = UDim.new(0, 5)}, closeButton)
-closeButton.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
-end)
+local ExitBtn = Instance.new("TextButton", MainFrame)
+ExitBtn.Size = UDim2.new(0, 25, 0, 25)
+ExitBtn.Position = UDim2.new(1, -35, 0, 10)
+ExitBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
+ExitBtn.Text = "X"
+ExitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+ExitBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", ExitBtn).CornerRadius = UDim.new(0, 4)
+ExitBtn.MouseButton1Click:Connect(function() iDyxeGui:Destroy() end)
 
--- Scrolling Frame for Tab Content
-local scrollingFrame = createVisualElement("ScrollingFrame", {
-    Name = "iDyxeScroll",
-    Size = UDim2.new(1, -20, 1, -60),
-    Position = UDim2.new(0, 10, 0, 50),
-    CanvasSize = UDim2.new(0, 0, 0, 800), -- Adjust canvas size
-    BackgroundTransparency = 1,
-    ScrollBarThickness = 5,
-}, mainFrame)
+-- ========================================== --
+--             UI LOGIC & BUILDER             --
+-- ========================================== --
+local Tabs = {}
+local TabButtons = {}
 
-createVisualElement("UIListLayout", {Padding = UDim.new(0, 10), HorizontalAlignment = Enum.HorizontalAlignment.Center}, scrollingFrame)
-
--- Create common button function
-local function createHubButton(name, text, parentInstance)
-    local button = createVisualElement("TextButton", {
-        Name = name,
-        Size = UDim2.new(0.9, 0, 0, 40),
-        Text = text,
-        TextColor3 = Color3.new(1, 1, 1),
-        TextSize = 16,
-        BackgroundColor3 = Color3.fromRGB(40, 40, 50),
-        BorderSizePixel = 0,
-    }, parentInstance)
-    createVisualElement("UICorner", {CornerRadius = UDim.new(0, 5)}, button)
-    return button
+local function createTab(name)
+    local tab = Instance.new("ScrollingFrame", TabContainer)
+    tab.Size = UDim2.new(1, 0, 1, 0)
+    tab.BackgroundTransparency = 1
+    tab.ScrollBarThickness = 2
+    tab.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 90)
+    tab.Visible = false
+    
+    local layout = Instance.new("UIListLayout", tab)
+    layout.Padding = UDim.new(0, 8)
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+    
+    -- Auto-resize canvas
+    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        tab.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 20)
+    end)
+    
+    Tabs[name] = tab
+    return tab
 end
 
--- Create Fly Button
-local flyButton = createHubButton("iDyxeFly", "iDyxe Fly", scrollingFrame)
-flyButton.MouseButton1Click:Connect(function()
-    isFlying = not isFlying
-    if isFlying then
-        flyButton.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
-        -- Fly implementation using BodyVelocity
-        local character = LocalPlayer.Character
-        local torso = character and (character:FindFirstChild("Torso") or character:FindFirstChild("UpperTorso"))
-        local humanoid = character and character:FindFirstChild("Humanoid")
-
-        if torso and humanoid then
-            humanoid.PlatformStand = true
-            local bv = Instance.new("BodyVelocity")
-            bv.maxForce = Vector3.new(9e9, 9e9, 9e9)
-            bv.velocity = Vector3.new(0, 0, 0)
-            bv.Parent = torso
-
-            local bg = Instance.new("BodyGyro")
-            bg.maxTorque = Vector3.new(9e9, 9e9, 9e9)
-            bg.cframe = torso.CFrame
-            bg.Parent = torso
-
-            RunService.RenderStepped:Connect(function()
-                if isFlying and torso and character and character.Parent then
-                    local camera = workspace.CurrentCamera
-                    local moveDir = (CFrame.new(torso.Position, camera.CFrame.Position).LookVector * -humanoid.WalkSpeed).Unit
-                    
-                    local velocity = Vector3.new(0, 0, 0)
-                    if UserInputService:IsKeyDown(Enum.KeyCode.W) then
-                        velocity = moveDir * humanoid.WalkSpeed
-                    elseif UserInputService:IsKeyDown(Enum.KeyCode.S) then
-                        velocity = -moveDir * humanoid.WalkSpeed
-                    end
-
-                    -- Add up/down movement
-                    if UserInputService:IsKeyDown(Enum.KeyCode.Q) then
-                        velocity = velocity + Vector3.new(0, -50, 0)
-                    elseif UserInputService:IsKeyDown(Enum.KeyCode.E) then
-                        velocity = velocity + Vector3.new(0, 50, 0)
-                    end
-
-                    bv.velocity = velocity
-                    bg.cframe = camera.CFrame * CFrame.Angles(-math.rad(camera.CFrame.Position.Unit.Y * 90), 0, 0)
-                elseif not isFlying and bv and bg then
-                    bv:Destroy()
-                    bg:Destroy()
-                    humanoid.PlatformStand = false
-                end
-            end)
-        end
-    else
-        flyButton.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
-        local character = LocalPlayer.Character
-        local torso = character and (character:FindFirstChild("Torso") or character:FindFirstChild("UpperTorso"))
-        local humanoid = character and character:FindFirstChild("Humanoid")
-        if torso then
-            local bv = torso:FindFirstChildOfClass("BodyVelocity")
-            local bg = torso:FindFirstChildOfClass("BodyGyro")
-            if bv then bv:Destroy() end
-            if bg then bg:Destroy() end
-        end
-        if humanoid then
-            humanoid.PlatformStand = false
+local function switchTab(name)
+    for tabName, tab in pairs(Tabs) do tab.Visible = (tabName == name) end
+    for btnName, btn in pairs(TabButtons) do
+        if btnName == name then
+            btn.BackgroundColor3 = Color3.fromRGB(80, 140, 255)
+            btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        else
+            btn.BackgroundColor3 = Color3.fromRGB(25, 27, 35)
+            btn.TextColor3 = Color3.fromRGB(150, 150, 160)
         end
     end
-end)
+    TabTitle.Text = string.upper(name)
+end
 
--- Create Spin Button
-local spinButton = createHubButton("iDyxeSpin", "iDyxe Spin", scrollingFrame)
-spinButton.MouseButton1Click:Connect(function()
-    isSpinning = not isSpinning
-    if isSpinning then
-        spinButton.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
-        local character = LocalPlayer.Character
-        local torso = character and (character:FindFirstChild("Torso") or character:FindFirstChild("UpperTorso"))
-        if torso then
-            local bav = Instance.new("BodyAngularVelocity")
-            bav.maxTorque = Vector3.new(9e9, 9e9, 9e9)
-            bav.angularvelocity = Vector3.new(0, 1000, 0)
-            bav.Parent = torso
+local function createSidebarButton(name, text, yPos)
+    local btn = Instance.new("TextButton", Sidebar)
+    btn.Size = UDim2.new(0.85, 0, 0, 32)
+    btn.Position = UDim2.new(0.075, 0, 0, yPos)
+    btn.BackgroundColor3 = Color3.fromRGB(25, 27, 35)
+    btn.Text = text
+    btn.TextColor3 = Color3.fromRGB(150, 150, 160)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 11
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    
+    btn.MouseButton1Click:Connect(function() switchTab(name) end)
+    TabButtons[name] = btn
+end
+
+local function notify(text)
+    game.StarterGui:SetCore("SendNotification", {Title = "iDyxe 8.5", Text = text, Duration = 2})
+end
+
+local function createToggle(tab, text, flagName)
+    local frame = Instance.new("Frame", tab)
+    frame.Size = UDim2.new(0.95, 0, 0, 36)
+    frame.BackgroundColor3 = Color3.fromRGB(25, 27, 35)
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
+    
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(0.7, 0, 1, 0)
+    label.Position = UDim2.new(0.05, 0, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextColor3 = Color3.fromRGB(210, 210, 220)
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 11
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    
+    local toggleBtn = Instance.new("TextButton", frame)
+    toggleBtn.Size = UDim2.new(0, 34, 0, 18)
+    toggleBtn.Position = UDim2.new(1, -45, 0.5, -9)
+    toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+    toggleBtn.Text = ""
+    Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(1, 0)
+    
+    local circle = Instance.new("Frame", toggleBtn)
+    circle.Size = UDim2.new(0, 14, 0, 14)
+    circle.Position = UDim2.new(0, 2, 0.5, -7)
+    circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Instance.new("UICorner", circle).CornerRadius = UDim.new(1, 0)
+    
+    Toggles[flagName] = false
+    toggleBtn.MouseButton1Click:Connect(function()
+        Toggles[flagName] = not Toggles[flagName]
+        if Toggles[flagName] then
+            toggleBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            circle.BackgroundColor3 = Color3.fromRGB(80, 140, 255)
+            circle:TweenPosition(UDim2.new(1, -16, 0.5, -7), "Out", "Quad", 0.15, true)
+            notify(text .. " [ON]")
+        else
+            toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+            circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            circle:TweenPosition(UDim2.new(0, 2, 0.5, -7), "Out", "Quad", 0.15, true)
+            notify(text .. " [OFF]")
         end
-    else
-        spinButton.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
-        local character = LocalPlayer.Character
-        local torso = character and (character:FindFirstChild("Torso") or character:FindFirstChild("UpperTorso"))
-        if torso then
-            local bav = torso:FindFirstChildOfClass("BodyAngularVelocity")
-            if bav then bav:Destroy() end
-        end
-    end
-end)
+    end)
+end
 
--- Create WalkSpeed Slider and Label
-local speedLabel = createVisualElement("TextLabel", {
-    Name = "iDyxeSpeedLabel",
-    Size = UDim2.new(0.9, 0, 0, 20),
-    Text = "iDyxe Speed: X16",
-    TextColor3 = Color3.new(1, 1, 1),
-    TextSize = 16,
-    Font = Enum.Font.Ubuntu,
-    BackgroundTransparency = 1,
-}, scrollingFrame)
+local function createButton(tab, text)
+    local btn = Instance.new("TextButton", tab)
+    btn.Size = UDim2.new(0.95, 0, 0, 36)
+    btn.BackgroundColor3 = Color3.fromRGB(25, 27, 35)
+    btn.Text = text
+    btn.TextColor3 = Color3.fromRGB(210, 210, 220)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 11
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    
+    btn.MouseButton1Click:Connect(function()
+        notify("Mengeksekusi: " .. text)
+        -- Tempat logika asli jika Tuan ingin mengembangkannya nanti
+    end)
+end
 
-local speedSliderFrame = createVisualElement("Frame", {
-    Name = "iDyxeSpeedSliderFrame",
-    Size = UDim2.new(0.9, 0, 0, 10),
-    BackgroundColor3 = Color3.fromRGB(100, 100, 100),
-    BorderSizePixel = 0,
-}, scrollingFrame)
-createVisualElement("UICorner", {CornerRadius = UDim.new(0, 5)}, speedSliderFrame)
+local function createDivider(tab, text)
+    local frame = Instance.new("Frame", tab)
+    frame.Size = UDim2.new(0.95, 0, 0, 20)
+    frame.BackgroundTransparency = 1
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.Text = "- " .. text .. " -"
+    label.TextColor3 = Color3.fromRGB(80, 80, 90)
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 10
+end
 
-local speedSliderIndicator = createVisualElement("Frame", {
-    Name = "iDyxeSpeedSliderIndicator",
-    Size = UDim2.new(0.1, 0, 1.2, 0),
-    Position = UDim2.new(0, 0, -0.1, 0),
-    BackgroundColor3 = Color3.new(1, 1, 1),
-    BorderSizePixel = 0,
-    Draggable = true,
-    Active = true,
-}, speedSliderFrame)
-createVisualElement("UICorner", {CornerRadius = UDim.new(0, 5)}, speedSliderIndicator)
+-- ========================================== --
+--          MEMBANGUN SELURUH TAB             --
+-- ========================================== --
 
-speedSliderIndicator.Changed:Connect(function(property)
-    if property == "Position" then
-        local currentX = speedSliderIndicator.Position.X.Offset
-        local maxX = speedSliderFrame.AbsoluteSize.X - speedSliderIndicator.AbsoluteSize.X
-        currentX = math.clamp(currentX, 0, maxX)
-        speedSliderIndicator.Position = UDim2.new(0, currentX, speedSliderIndicator.Position.Y.Scale, speedSliderIndicator.Position.Y.Offset)
-        
-        walkSpeed = 16 + (currentX / maxX) * (200 - 16)
-        speedLabel.Text = "iDyxe Speed: X" .. math.floor(walkSpeed)
-        
-        local character = LocalPlayer.Character
-        local humanoid = character and character:FindFirstChild("Humanoid")
-        if humanoid then
-            humanoid.WalkSpeed = walkSpeed
-        end
-    end
-end)
+-- 1. TAB: iDyxe (Pengganti SXTHR)
+createSidebarButton("iDyxe", "iDyxe", 55)
+local t_iDyxe = createTab("iDyxe")
+createToggle(t_iDyxe, "ANTI FLING", "AntiFling")
+createToggle(t_iDyxe, "TOUCH FLING", "TouchFling")
+createToggle(t_iDyxe, "INVISIBILITY", "Invis")
+createToggle(t_iDyxe, "GOD MODE", "GodMode")
+createToggle(t_iDyxe, "INFINITE JUMP", "InfJump")
+createToggle(t_iDyxe, "NO CLIP", "NoClip")
+createDivider(t_iDyxe, "SCRIPTS")
+createButton(t_iDyxe, "iDyxe AUTO WALK")
+createButton(t_iDyxe, "iDyxe AUTO TELEPORT")
+createButton(t_iDyxe, "iDyxe FLY")
+createButton(t_iDyxe, "iDyxe FLY V2")
+createButton(t_iDyxe, "iDyxe GLITCH")
+createButton(t_iDyxe, "iDyxe GLITCH V2")
+createButton(t_iDyxe, "iDyxe ANIMATED")
+createButton(t_iDyxe, "iDyxe EMOTE")
 
--- Create Fling All Button
-local flingAllButton = createHubButton("iDyxeFlingAll", "iDyxe Fling All Player", scrollingFrame)
-flingAllButton.MouseButton1Click:Connect(function()
-    isFlingingAll = not isFlingingAll
-    if isFlingingAll then
-        flingAllButton.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
-        -- Fling All implementation
-        local function flingPlayer(targetPlayer)
-            local targetCharacter = targetPlayer.Character
-            local targetTorso = targetCharacter and (targetCharacter:FindFirstChild("Torso") or targetCharacter:FindFirstChild("UpperTorso"))
-            if targetTorso then
-                local bav = Instance.new("BodyAngularVelocity")
-                bav.maxTorque = Vector3.new(9e9, 9e9, 9e9)
-                bav.angularvelocity = Vector3.new(9e9, 9e9, 9e9)
-                bav.Parent = targetTorso
-                delay(0.5, function()
-                    if bav then bav:Destroy() end
-                end)
-            end
-        end
-        
-        for _, player in pairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer then
-                flingPlayer(player)
-            end
-        end
-        flingAllButton.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
-        isFlingingAll = false
-    end
-end)
+-- 2. TAB: UNIVERSAL
+createSidebarButton("Universal", "UNIVERSAL", 95)
+local t_Univ = createTab("Universal")
+createButton(t_Univ, "iDyxe INJECTION")
+createButton(t_Univ, "iDyxe KIMCOHI")
+createButton(t_Univ, "iDyxe LAG SERVER")
+createButton(t_Univ, "iDyxe SPAM")
+createButton(t_Univ, "iDyxe CHARME")
+createButton(t_Univ, "iDyxe TALL MAN")
+createDivider(t_Univ, "PLAYER TOOLS")
+createButton(t_Univ, "TROLL PLAYER")
+createButton(t_Univ, "ESP PLAYER")
+createButton(t_Univ, "FAKE DONATE")
+createButton(t_Univ, "TRANSLATE")
+createDivider(t_Univ, "AURA SYSTEM")
+createButton(t_Univ, "iDyxe AURA")
+createButton(t_Univ, "iDyxe AURA FAST")
 
--- Create Teleport Button
-local teleportButton = createHubButton("iDyxeTeleport", "iDyxe Teleport", scrollingFrame)
-teleportButton.MouseButton1Click:Connect(function()
-    -- Use a simple prompt function
-    local function simplePrompt(title, placeholderText)
-        local promptFrame = createVisualElement("Frame", {
-            Size = UDim2.new(0, 200, 0, 100),
-            Position = UDim2.new(0.5, -100, 0.5, -50),
-            BackgroundColor3 = Color3.fromRGB(30, 30, 40),
-            BorderSizePixel = 0,
-        }, screenGui)
-        createVisualElement("UICorner", {CornerRadius = UDim.new(0, 8)}, promptFrame)
+-- 3. TAB: CHAOTIC
+createSidebarButton("Chaotic", "CHAOTIC", 135)
+local t_Chaos = createTab("Chaotic")
+createButton(t_Chaos, "iDyxe FLING")
+createButton(t_Chaos, "iDyxe BROKEN")
+createButton(t_Chaos, "iDyxe CHAOTIC")
+createButton(t_Chaos, "iDyxe PART CONTROLLER")
+createButton(t_Chaos, "iDyxe BRING")
+createButton(t_Chaos, "iDyxe BRING V2")
 
-        createVisualElement("TextLabel", {
-            Size = UDim2.new(1, 0, 0, 30),
-            Text = title,
-            TextColor3 = Color3.new(1, 1, 1),
-            TextSize = 16,
-            BackgroundTransparency = 1,
-        }, promptFrame)
+-- 4. TAB: SERVER
+createSidebarButton("Server", "SERVER", 175)
+local t_Server = createTab("Server")
+createButton(t_Server, "ANTI LAG & FPS BOOSTER")
+createButton(t_Server, "ULTRA GRAPHICS")
+createButton(t_Server, "FREECAM")
+createButton(t_Server, "SPECTATE PLAYER")
+createButton(t_Server, "TELEPORT PLAYER")
+createButton(t_Server, "ALL SERVER TELEPORT")
+createButton(t_Server, "SKY CHANGER")
 
-        local inputTextBox = createVisualElement("TextBox", {
-            Size = UDim2.new(0.8, 0, 0, 30),
-            Position = UDim2.new(0.1, 0, 0.4, 0),
-            Text = "",
-            PlaceholderText = placeholderText,
-            TextColor3 = Color3.new(1, 1, 1),
-            TextSize = 14,
-            BackgroundColor3 = Color3.fromRGB(40, 40, 50),
-            BorderSizePixel = 0,
-        }, promptFrame)
-        createVisualElement("UICorner", {CornerRadius = UDim.new(0, 5)}, inputTextBox)
+-- 5. TAB: SETTINGS
+createSidebarButton("Settings", "SETTINGS", 215)
+local t_Set = createTab("Settings")
+createButton(t_Set, "REJOIN SERVER")
+createButton(t_Set, "SERVER HOP")
+createButton(t_Set, "DESTROY iDyxe HUB")
+-- Logika untuk menghancurkan hub dari setting
+t_Set:GetChildren()[#t_Set:GetChildren()].MouseButton1Click:Connect(function() iDyxeGui:Destroy() end)
 
-        local okButton = createVisualElement("TextButton", {
-            Size = UDim2.new(0, 50, 0, 30),
-            Position = UDim2.new(0.3, 0, 0.75, 0),
-            Text = "OK",
-            TextColor3 = Color3.new(1, 1, 1),
-            TextSize = 14,
-            BackgroundColor3 = Color3.fromRGB(150, 0, 0),
-            BorderSizePixel = 0,
-        }, promptFrame)
-        createVisualElement("UICorner", {CornerRadius = UDim.new(0, 5)}, okButton)
-        okButton.MouseButton1Click:Connect(function()
-            promptFrame:Destroy()
-            local targetPlayerName = inputTextBox.Text
-            local targetPlayer = Players:FindFirstChild(targetPlayerName)
-            if targetPlayer then
-                LocalPlayer.Character:MoveTo(targetPlayer.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0))
-            end
-        end)
-    end
-    simplePrompt("iDyxe Teleport", "Enter Player Name")
-end)
+-- Mulai dengan tab iDyxe terbuka
+switchTab("iDyxe")
 
--- Create ESP Button
-local espButton = createHubButton("iDyxeESP", "iDyxe ESP", scrollingFrame)
-espButton.MouseButton1Click:Connect(function()
-    espEnabled = not espEnabled
-    if espEnabled then
-        espButton.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
-        -- ESP implementation
-        local function createESPBox(player)
-            if espBoxes[player] then espBoxes[player]:Destroy() end
-            if player.Character and player.Character:FindFirstChild("Torso") then
-                local espBox = createVisualElement("BoxHandleAdornment", {
-                    Adornee = player.Character.Torso,
-                    Size = Vector3.new(4, 6, 2), -- Box size
-                    Transparency = 0.5,
-                    Color3 = Color3.new(1, 0, 0), -- ESP Color
-                    ZIndex = 1,
-                    AlwaysOnTop = true,
-                }, workspace)
-                espBoxes[player] = espBox
-            end
-        end
-        
-        for _, player in pairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer then
-                createESPBox(player)
-            end
-        end
-        
-        RunService.RenderStepped:Connect(function()
-            if espEnabled then
-                for player, _ in pairs(espBoxes) do
-                    if not player.Parent then
-                        espBoxes[player]:Destroy()
-                        espBoxes[player] = nil
-                    end
-                end
-            end
-        end)
-    else
-        espButton.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
-        for _, box in pairs(espBoxes) do
-            box:Destroy()
-        end
-        espBoxes = {}
-    end
-end)
-
--- Notify
-pcall(function()
-    game.StarterGui:SetCore("SendNotification", {
-        Title = "iDyxe HUB",
-        Text = "iDyxe HUB v1.0 Loaded. Selamat datang, Tuan iDyxe! 😈",
-        Duration = 5,
-    })
-end)
+notify("iDyxe 8.5 telah mengambil alih sistem. 👑")
