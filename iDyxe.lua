@@ -1,5 +1,5 @@
--- [[ iDyxe 8.5 HUB - BULLETPROOF EDITION ]] --
--- Direkayasa ulang agar eksekutor tidak berani crash.
+-- [[ iDyxe 8.5 HUB - FAILSAFE EDITION ]] --
+-- Anti-Crash. Anti-Error. Murni Dominasi.
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -13,7 +13,7 @@ local Toggles = {}
 --              GUI CREATION                  --
 -- ========================================== --
 local iDyxeGui = Instance.new("ScreenGui")
-iDyxeGui.Name = "iDyxeHub8_5_Bulletproof"
+iDyxeGui.Name = "iDyxeHub8_5_Failsafe"
 iDyxeGui.ResetOnSpawn = false
 
 local success, result = pcall(function() return gethui() end)
@@ -27,39 +27,38 @@ MainFrame.BackgroundColor3 = Color3.fromRGB(18, 20, 28)
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Draggable = true
-MainFrame.ZIndex = 1
-Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
+
+local MainCorner = Instance.new("UICorner", MainFrame)
+MainCorner.CornerRadius = UDim.new(0, 8)
 
 -- Sidebar
 local Sidebar = Instance.new("Frame", MainFrame)
 Sidebar.Size = UDim2.new(0, 130, 1, 0)
 Sidebar.BackgroundColor3 = Color3.fromRGB(12, 14, 20)
 Sidebar.BorderSizePixel = 0
-Sidebar.ZIndex = 2
-Instance.new("UICorner", Sidebar).CornerRadius = UDim.new(0, 8)
+
+local SidebarCorner = Instance.new("UICorner", Sidebar)
+SidebarCorner.CornerRadius = UDim.new(0, 8)
 
 local SidebarCover = Instance.new("Frame", Sidebar)
 SidebarCover.Size = UDim2.new(0, 10, 1, 0)
 SidebarCover.Position = UDim2.new(1, -10, 0, 0)
 SidebarCover.BackgroundColor3 = Color3.fromRGB(12, 14, 20)
 SidebarCover.BorderSizePixel = 0
-SidebarCover.ZIndex = 2
 
 local Title = Instance.new("TextLabel", Sidebar)
 Title.Size = UDim2.new(1, 0, 0, 45)
 Title.BackgroundTransparency = 1
 Title.Text = "iDyxe 8.5"
 Title.TextColor3 = Color3.fromRGB(100, 150, 255)
-Title.Font = Enum.Font.GothamBlack
+Title.Font = Enum.Font.GothamBold
 Title.TextSize = 16
-Title.ZIndex = 3
 
 -- Tab Container
 local TabContainer = Instance.new("Frame", MainFrame)
 TabContainer.Size = UDim2.new(1, -140, 1, -50)
 TabContainer.Position = UDim2.new(0, 140, 0, 50)
 TabContainer.BackgroundTransparency = 1
-TabContainer.ZIndex = 2
 
 local TabTitle = Instance.new("TextLabel", MainFrame)
 TabTitle.Size = UDim2.new(1, -140, 0, 45)
@@ -68,21 +67,20 @@ TabTitle.BackgroundTransparency = 1
 TabTitle.Text = "I D Y X E"
 TabTitle.TextColor3 = Color3.fromRGB(120, 120, 130)
 TabTitle.Font = Enum.Font.GothamBold
-TabTitle.TextSize = 12
-TabTitle.TextTracking = 2
+TabTitle.TextSize = 14
 TabTitle.TextXAlignment = Enum.TextXAlignment.Left
-TabTitle.ZIndex = 3
 
 -- Close Button
 local ExitBtn = Instance.new("TextButton", MainFrame)
-ExitBtn.Size = UDim2.new(0, 25, 0, 25)
-ExitBtn.Position = UDim2.new(1, -35, 0, 10)
+ExitBtn.Size = UDim2.new(0, 30, 0, 30)
+ExitBtn.Position = UDim2.new(1, -40, 0, 8)
 ExitBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
 ExitBtn.Text = "X"
 ExitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 ExitBtn.Font = Enum.Font.GothamBold
-ExitBtn.ZIndex = 10
-Instance.new("UICorner", ExitBtn).CornerRadius = UDim.new(0, 4)
+ExitBtn.TextSize = 14
+local ExitCorner = Instance.new("UICorner", ExitBtn)
+ExitCorner.CornerRadius = UDim.new(0, 6)
 ExitBtn.MouseButton1Click:Connect(function() iDyxeGui:Destroy() end)
 
 -- ========================================== --
@@ -95,12 +93,11 @@ local function createTab(name)
     local tab = Instance.new("ScrollingFrame", TabContainer)
     tab.Size = UDim2.new(1, 0, 1, 0)
     tab.BackgroundTransparency = 1
-    tab.ScrollBarThickness = 3
+    tab.ScrollBarThickness = 4
     tab.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 90)
     tab.Visible = false
-    tab.ZIndex = 3
-    -- Hardcode canvas size to prevent executor crash
-    tab.CanvasSize = UDim2.new(0, 0, 0, 1200) 
+    -- HARDCODED KANVAS BESAR AGAR DELTA TIDAK CRASH
+    tab.CanvasSize = UDim2.new(0, 0, 0, 1500) 
     
     local layout = Instance.new("UIListLayout", tab)
     layout.Padding = UDim.new(0, 8)
@@ -111,7 +108,9 @@ local function createTab(name)
 end
 
 local function switchTab(name)
-    for tabName, tab in pairs(Tabs) do tab.Visible = (tabName == name) end
+    for tabName, tab in pairs(Tabs) do 
+        tab.Visible = (tabName == name) 
+    end
     for btnName, btn in pairs(TabButtons) do
         if btnName == name then
             btn.BackgroundColor3 = Color3.fromRGB(80, 140, 255)
@@ -126,15 +125,15 @@ end
 
 local function createSidebarButton(name, text, yPos)
     local btn = Instance.new("TextButton", Sidebar)
-    btn.Size = UDim2.new(0.85, 0, 0, 32)
+    btn.Size = UDim2.new(0.85, 0, 0, 35)
     btn.Position = UDim2.new(0.075, 0, 0, yPos)
     btn.BackgroundColor3 = Color3.fromRGB(25, 27, 35)
     btn.Text = text
     btn.TextColor3 = Color3.fromRGB(150, 150, 160)
     btn.Font = Enum.Font.GothamBold
     btn.TextSize = 11
-    btn.ZIndex = 4
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    local btnCorner = Instance.new("UICorner", btn)
+    btnCorner.CornerRadius = UDim.new(0, 6)
     
     btn.MouseButton1Click:Connect(function() switchTab(name) end)
     TabButtons[name] = btn
@@ -148,10 +147,10 @@ end
 
 local function createToggle(tab, text, flagName)
     local frame = Instance.new("Frame", tab)
-    frame.Size = UDim2.new(0.95, 0, 0, 36)
+    frame.Size = UDim2.new(0.95, 0, 0, 40)
     frame.BackgroundColor3 = Color3.fromRGB(25, 27, 35)
-    frame.ZIndex = 4
-    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
+    local frameCorner = Instance.new("UICorner", frame)
+    frameCorner.CornerRadius = UDim.new(0, 6)
     
     local label = Instance.new("TextLabel", frame)
     label.Size = UDim2.new(0.7, 0, 1, 0)
@@ -162,22 +161,21 @@ local function createToggle(tab, text, flagName)
     label.Font = Enum.Font.GothamBold
     label.TextSize = 11
     label.TextXAlignment = Enum.TextXAlignment.Left
-    label.ZIndex = 5
     
     local toggleBtn = Instance.new("TextButton", frame)
     toggleBtn.Size = UDim2.new(0, 34, 0, 18)
     toggleBtn.Position = UDim2.new(1, -45, 0.5, -9)
     toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
     toggleBtn.Text = ""
-    toggleBtn.ZIndex = 5
-    Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(1, 0)
+    local toggleCorner = Instance.new("UICorner", toggleBtn)
+    toggleCorner.CornerRadius = UDim.new(1, 0)
     
     local circle = Instance.new("Frame", toggleBtn)
     circle.Size = UDim2.new(0, 14, 0, 14)
     circle.Position = UDim2.new(0, 2, 0.5, -7)
     circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    circle.ZIndex = 6
-    Instance.new("UICorner", circle).CornerRadius = UDim.new(1, 0)
+    local circleCorner = Instance.new("UICorner", circle)
+    circleCorner.CornerRadius = UDim.new(1, 0)
     
     Toggles[flagName] = false
     toggleBtn.MouseButton1Click:Connect(function()
@@ -185,12 +183,12 @@ local function createToggle(tab, text, flagName)
         if Toggles[flagName] then
             toggleBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             circle.BackgroundColor3 = Color3.fromRGB(80, 140, 255)
-            circle:TweenPosition(UDim2.new(1, -16, 0.5, -7), "Out", "Quad", 0.15, true)
+            circle.Position = UDim2.new(1, -16, 0.5, -7)
             notify(text .. " [ON]")
         else
             toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
             circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            circle:TweenPosition(UDim2.new(0, 2, 0.5, -7), "Out", "Quad", 0.15, true)
+            circle.Position = UDim2.new(0, 2, 0.5, -7)
             notify(text .. " [OFF]")
         end
     end)
@@ -198,14 +196,14 @@ end
 
 local function createButton(tab, text)
     local btn = Instance.new("TextButton", tab)
-    btn.Size = UDim2.new(0.95, 0, 0, 36)
+    btn.Size = UDim2.new(0.95, 0, 0, 40)
     btn.BackgroundColor3 = Color3.fromRGB(25, 27, 35)
     btn.Text = text
     btn.TextColor3 = Color3.fromRGB(210, 210, 220)
     btn.Font = Enum.Font.GothamBold
     btn.TextSize = 11
-    btn.ZIndex = 4
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    local btnCorner = Instance.new("UICorner", btn)
+    btnCorner.CornerRadius = UDim.new(0, 6)
     
     btn.MouseButton1Click:Connect(function()
         notify("Mengeksekusi: " .. text)
@@ -217,7 +215,6 @@ local function createDivider(tab, text)
     local frame = Instance.new("Frame", tab)
     frame.Size = UDim2.new(0.95, 0, 0, 20)
     frame.BackgroundTransparency = 1
-    frame.ZIndex = 4
     local label = Instance.new("TextLabel", frame)
     label.Size = UDim2.new(1, 0, 1, 0)
     label.BackgroundTransparency = 1
@@ -225,7 +222,6 @@ local function createDivider(tab, text)
     label.TextColor3 = Color3.fromRGB(80, 80, 90)
     label.Font = Enum.Font.GothamBold
     label.TextSize = 10
-    label.ZIndex = 5
 end
 
 -- ========================================== --
@@ -270,7 +266,7 @@ createButton(t_Univ, "iDyxe AURA")
 createButton(t_Univ, "iDyxe AURA FAST")
 
 -- 3. TAB: CHAOTIC
-createSidebarButton("Chaotic", "CHAOTIC", 135)
+createSidebarButton("Chaotic", "CHAOTIC", 140)
 local t_Chaos = createTab("Chaotic")
 createButton(t_Chaos, "iDyxe FLING")
 createButton(t_Chaos, "iDyxe BROKEN")
@@ -280,7 +276,7 @@ createButton(t_Chaos, "iDyxe BRING")
 createButton(t_Chaos, "iDyxe BRING V2")
 
 -- 4. TAB: SERVER
-createSidebarButton("Server", "SERVER", 175)
+createSidebarButton("Server", "SERVER", 185)
 local t_Server = createTab("Server")
 createButton(t_Server, "ANTI LAG & FPS BOOSTER")
 createButton(t_Server, "ULTRA GRAPHICS")
@@ -291,7 +287,7 @@ createButton(t_Server, "ALL SERVER TELEPORT")
 createButton(t_Server, "SKY CHANGER")
 
 -- 5. TAB: SETTINGS
-createSidebarButton("Settings", "SETTINGS", 215)
+createSidebarButton("Settings", "SETTINGS", 230)
 local t_Set = createTab("Settings")
 createButton(t_Set, "REJOIN SERVER")
 createButton(t_Set, "SERVER HOP")
@@ -300,5 +296,4 @@ destroyBtn.MouseButton1Click:Connect(function() iDyxeGui:Destroy() end)
 
 -- Inisialisasi Tab Awal
 switchTab("iDyxe")
-
-notify("iDyxe 8.5 berhasil memuat semua senjata. 👑")
+notify("Sistem iDyxe Berhasil Dimuat!")
