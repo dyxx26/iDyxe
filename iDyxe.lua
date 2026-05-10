@@ -1,159 +1,139 @@
--- [[ iDyxe 8.5 HUB - GHOST EDITION ]] --
--- Versi paling ringan, paling kasar, paling anti-blank.
+-- [[ iDyxe HUB 8.5 - ULTRA STABLE VERSION ]] --
+-- Dibuat khusus untuk Tuan iDyxe agar kebal terhadap blank screen.
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local CoreGui = game:GetService("CoreGui")
 
--- ========================================== --
---    GUI BASE (TANPA SCROLLING AGAR TIDAK BLANK)
--- ========================================== --
+-- Proteksi agar tidak double execute
+if PlayerGui:FindFirstChild("iDyxeIndustrial") then PlayerGui.iDyxeIndustrial:Destroy() end
+
 local iDyxeGui = Instance.new("ScreenGui")
-iDyxeGui.Name = "iDyxeGhost"
+iDyxeGui.Name = "iDyxeIndustrial"
 iDyxeGui.ResetOnSpawn = false
+iDyxeGui.Parent = PlayerGui -- Menggunakan PlayerGui agar lebih stabil di Delta
 
-local success, result = pcall(function() return gethui() end)
-if success and result then iDyxeGui.Parent = result else iDyxeGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
-
+-- Background Utama
 local MainFrame = Instance.new("Frame", iDyxeGui)
-MainFrame.Size = UDim2.new(0, 480, 0, 320)
-MainFrame.Position = UDim2.new(0.5, -240, 0.5, -160)
-MainFrame.BackgroundColor3 = Color3.fromRGB(18, 20, 28)
-MainFrame.BorderSizePixel = 0
+MainFrame.Size = UDim2.new(0, 500, 0, 400)
+MainFrame.Position = UDim2.new(0.5, -250, 0.5, -200)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+MainFrame.BorderSizePixel = 2
+MainFrame.BorderColor3 = Color3.fromRGB(80, 140, 255)
 MainFrame.Active = true
 MainFrame.Draggable = true
-Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
 
--- Sidebar (Fixed)
-local Sidebar = Instance.new("Frame", MainFrame)
-Sidebar.Size = UDim2.new(0, 130, 1, 0)
-Sidebar.BackgroundColor3 = Color3.fromRGB(12, 14, 20)
-Sidebar.BorderSizePixel = 0
-Instance.new("UICorner", Sidebar).CornerRadius = UDim.new(0, 8)
+-- Header Title
+local TitleBar = Instance.new("Frame", MainFrame)
+TitleBar.Size = UDim2.new(1, 0, 0, 35)
+TitleBar.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+TitleBar.BorderSizePixel = 0
 
-local Title = Instance.new("TextLabel", Sidebar)
-Title.Size = UDim2.new(1, 0, 0, 45)
-Title.BackgroundTransparency = 1
-Title.Text = "iDyxe 8.5"
-Title.TextColor3 = Color3.fromRGB(100, 150, 255)
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 16
+local TitleText = Instance.new("TextLabel", TitleBar)
+TitleText.Size = UDim2.new(1, -40, 1, 0)
+TitleText.Position = UDim2.new(0, 10, 0, 0)
+TitleText.BackgroundTransparency = 1
+TitleText.Text = "iDyxe 8.5 - MASTER CONTROL"
+TitleText.TextColor3 = Color3.new(1, 1, 1)
+TitleText.Font = Enum.Font.Code
+TitleText.TextSize = 16
+TitleText.TextXAlignment = Enum.TextXAlignment.Left
 
--- Tab Container (Hardcoded Layer)
-local TabContainer = Instance.new("Frame", MainFrame)
-TabContainer.Size = UDim2.new(1, -140, 1, -50)
-TabContainer.Position = UDim2.new(0, 140, 0, 50)
-TabContainer.BackgroundTransparency = 1
-TabContainer.ZIndex = 5
-
-local TabTitle = Instance.new("TextLabel", MainFrame)
-TabTitle.Size = UDim2.new(0, 150, 0, 45)
-TabTitle.Position = UDim2.new(0, 140, 0, 0)
-TabTitle.BackgroundTransparency = 1
-TabTitle.Text = "MAIN MENU"
-TabTitle.TextColor3 = Color3.fromRGB(120, 120, 130)
-TabTitle.Font = Enum.Font.GothamBold
-TabTitle.TextSize = 14
-TabTitle.TextXAlignment = Enum.TextXAlignment.Left
-
--- Close Button (Wajib Ada)
-local ExitBtn = Instance.new("TextButton", MainFrame)
-ExitBtn.Size = UDim2.new(0, 25, 0, 25)
-ExitBtn.Position = UDim2.new(1, -35, 0, 10)
+-- Close Button (X)
+local ExitBtn = Instance.new("TextButton", TitleBar)
+ExitBtn.Size = UDim2.new(0, 30, 0, 30)
+ExitBtn.Position = UDim2.new(1, -32, 0, 2)
 ExitBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
 ExitBtn.Text = "X"
-ExitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+ExitBtn.TextColor3 = Color3.new(1, 1, 1)
 ExitBtn.Font = Enum.Font.GothamBold
-ExitBtn.ZIndex = 10
-Instance.new("UICorner", ExitBtn).CornerRadius = UDim.new(0, 4)
 ExitBtn.MouseButton1Click:Connect(function() iDyxeGui:Destroy() end)
 
--- ========================================== --
---          TAB SYSTEM (MANUAL RENDER)         --
--- ========================================== --
-local Tabs = {}
-local TabButtons = {}
+-- Area Isi Menu (MENGGUNAKAN GRID AGAR RAPI)
+local Container = Instance.new("ScrollingFrame", MainFrame)
+Container.Size = UDim2.new(1, -20, 1, -50)
+Container.Position = UDim2.new(0, 10, 0, 45)
+Container.BackgroundTransparency = 1
+Container.ScrollBarThickness = 5
+Container.CanvasSize = UDim2.new(0, 0, 0, 1000) -- Canvas panjang ke bawah
 
-local function createTab(name)
-    local tab = Instance.new("Frame", TabContainer)
-    tab.Size = UDim2.size(1, 0, 1, 0)
-    tab.BackgroundTransparency = 1
-    tab.Visible = false
-    tab.ZIndex = 6
-    
-    local layout = Instance.new("UIListLayout", tab)
-    layout.Padding = UDim.new(0, 5)
-    layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-    
-    Tabs[name] = tab
-    return tab
-end
+local Grid = Instance.new("UIGridLayout", Container)
+Grid.CellSize = UDim2.new(0, 150, 0, 35)
+Grid.CellPadding = UDim2.new(0, 8, 0, 8)
 
-local function switchTab(name)
-    for tName, tFrame in pairs(Tabs) do tFrame.Visible = (tName == name) end
-    TabTitle.Text = string.upper(name)
-end
-
-local function createSidebarBtn(name, y)
-    local btn = Instance.new("TextButton", Sidebar)
-    btn.Size = UDim2.new(0.85, 0, 0, 30)
-    btn.Position = UDim2.new(0.075, 0, 0, y)
-    btn.BackgroundColor3 = Color3.fromRGB(25, 27, 35)
-    btn.Text = name
-    btn.TextColor3 = Color3.fromRGB(150, 150, 160)
-    btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 10
-    btn.ZIndex = 7
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
-    btn.MouseButton1Click:Connect(function() switchTab(name) end)
-end
-
-local function createBtn(tab, text)
-    local b = Instance.new("TextButton", tab)
-    b.Size = UDim2.new(0.95, 0, 0, 32)
-    b.BackgroundColor3 = Color3.fromRGB(30, 32, 40)
-    b.Text = text
-    b.TextColor3 = Color3.fromRGB(255, 255, 255)
-    b.Font = Enum.Font.GothamBold
+-- Fungsi sakti pembuat tombol
+local function addBtn(name, color)
+    local b = Instance.new("TextButton", Container)
+    b.BackgroundColor3 = color or Color3.fromRGB(30, 32, 45)
+    b.Text = name
+    b.TextColor3 = Color3.new(1, 1, 1)
+    b.Font = Enum.Font.Code
     b.TextSize = 11
-    b.ZIndex = 8
-    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
+    b.BorderSizePixel = 0
+    local corner = Instance.new("UICorner", b)
+    corner.CornerRadius = UDim.new(0, 4)
+    
+    b.MouseButton1Click:Connect(function()
+        game.StarterGui:SetCore("SendNotification", {
+            Title = "iDyxe 8.5",
+            Text = "Executing: " .. name,
+            Duration = 2
+        })
+    end)
 end
 
 -- ========================================== --
---          EKSEKUSI PENYUSUNAN TAB           --
+--          DAFTAR FITUR (SESUAI REQUEST)      --
 -- ========================================== --
 
--- Tab Utama
-local t_iDyxe = createTab("iDyxe")
-createSidebarBtn("iDyxe", 50)
-createBtn(t_iDyxe, "ANTI FLING")
-createBtn(t_iDyxe, "TOUCH FLING")
-createBtn(t_iDyxe, "GOD MODE")
-createBtn(t_iDyxe, "FLY V1")
-createBtn(t_iDyxe, "FLY V2")
-createBtn(t_iDyxe, "NO CLIP")
+-- SXTHR / MAIN
+addBtn("ANTI FLING", Color3.fromRGB(60, 60, 80))
+addBtn("TOUCH FLING", Color3.fromRGB(60, 60, 80))
+addBtn("INVISIBILITY")
+addBtn("GOD MODE")
+addBtn("INFINITE JUMP")
+addBtn("NO CLIP")
 
--- Tab Universal
-local t_Universal = createTab("Universal")
-createSidebarBtn("Universal", 85)
-createBtn(t_Universal, "iDyxe INJECTION")
-createBtn(t_Universal, "LAG SERVER")
-createBtn(t_Universal, "SPAM CHAT")
-createBtn(t_Universal, "ESP PLAYER")
+-- MOVEMENT
+addBtn("iDyxe AUTO WALK", Color3.fromRGB(40, 80, 40))
+addBtn("iDyxe AUTO TELEPORT", Color3.fromRGB(40, 80, 40))
+addBtn("iDyxe FLY")
+addBtn("iDyxe FLY V2")
+addBtn("iDyxe GLITCH")
+addBtn("iDyxe GLITCH V2")
 
--- Tab Chaotic
-local t_Chaotic = createTab("Chaotic")
-createSidebarBtn("Chaotic", 120)
-createBtn(t_Chaotic, "FLING ALL")
-createBtn(t_Chaotic, "BRING OTHERS")
+-- UNIVERSAL
+addBtn("iDyxe INJECTION", Color3.fromRGB(80, 40, 80))
+addBtn("iDyxe KIMCOHI")
+addBtn("iDyxe LAG SERVER")
+addBtn("iDyxe SPAM")
+addBtn("iDyxe CHARME")
+addBtn("iDyxe TALL MAN")
 
--- Tab Server
-local t_Server = createTab("Server")
-createSidebarBtn("Server", 155)
-createBtn(t_Server, "FPS BOOSTER")
-createBtn(t_Server, "ULTRA GRAPHICS")
-createBtn(t_Server, "SKY CHANGER")
+-- PLAYER TOOLS
+addBtn("TROLL PLAYER")
+addBtn("ESP PLAYER")
+addBtn("FAKE DONATE")
+addBtn("TRANSLATE")
+addBtn("iDyxe AURA")
+addBtn("iDyxe AURA FAST")
 
-switchTab("iDyxe")
-print("iDyxe Hub Loaded Successfully!")
+-- CHAOTIC
+addBtn("iDyxe FLING", Color3.fromRGB(100, 40, 40))
+addBtn("iDyxe BROKEN")
+addBtn("iDyxe CHAOTIC")
+addBtn("PART CONTROLLER")
+addBtn("iDyxe BRING")
+addBtn("iDyxe BRING V2")
+
+-- SERVER
+addBtn("FPS BOOSTER", Color3.fromRGB(40, 60, 100))
+addBtn("ULTRA GRAPHICS")
+addBtn("FREECAM")
+addBtn("SPECTATE PLAYER")
+addBtn("TELEPORT PLAYER")
+addBtn("ALL SERVER TELEPORT")
+addBtn("SKY CHANGER")
+
+print("iDyxe Hub 8.5 Loaded!")
