@@ -1,5 +1,5 @@
--- [[ iDyxe 8.5 HUB - THE ABSOLUTE ULTIMATE ]] --
--- Cetak biru kehancuran total, direkayasa ulang untuk Tuan iDyxe.
+-- [[ iDyxe 8.5 HUB - BULLETPROOF EDITION ]] --
+-- Direkayasa ulang agar eksekutor tidak berani crash.
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -13,7 +13,7 @@ local Toggles = {}
 --              GUI CREATION                  --
 -- ========================================== --
 local iDyxeGui = Instance.new("ScreenGui")
-iDyxeGui.Name = "iDyxeHub8_5_Ultimate"
+iDyxeGui.Name = "iDyxeHub8_5_Bulletproof"
 iDyxeGui.ResetOnSpawn = false
 
 local success, result = pcall(function() return gethui() end)
@@ -27,6 +27,7 @@ MainFrame.BackgroundColor3 = Color3.fromRGB(18, 20, 28)
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Draggable = true
+MainFrame.ZIndex = 1
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
 
 -- Sidebar
@@ -34,6 +35,7 @@ local Sidebar = Instance.new("Frame", MainFrame)
 Sidebar.Size = UDim2.new(0, 130, 1, 0)
 Sidebar.BackgroundColor3 = Color3.fromRGB(12, 14, 20)
 Sidebar.BorderSizePixel = 0
+Sidebar.ZIndex = 2
 Instance.new("UICorner", Sidebar).CornerRadius = UDim.new(0, 8)
 
 local SidebarCover = Instance.new("Frame", Sidebar)
@@ -41,6 +43,7 @@ SidebarCover.Size = UDim2.new(0, 10, 1, 0)
 SidebarCover.Position = UDim2.new(1, -10, 0, 0)
 SidebarCover.BackgroundColor3 = Color3.fromRGB(12, 14, 20)
 SidebarCover.BorderSizePixel = 0
+SidebarCover.ZIndex = 2
 
 local Title = Instance.new("TextLabel", Sidebar)
 Title.Size = UDim2.new(1, 0, 0, 45)
@@ -49,12 +52,14 @@ Title.Text = "iDyxe 8.5"
 Title.TextColor3 = Color3.fromRGB(100, 150, 255)
 Title.Font = Enum.Font.GothamBlack
 Title.TextSize = 16
+Title.ZIndex = 3
 
 -- Tab Container
 local TabContainer = Instance.new("Frame", MainFrame)
 TabContainer.Size = UDim2.new(1, -140, 1, -50)
 TabContainer.Position = UDim2.new(0, 140, 0, 50)
 TabContainer.BackgroundTransparency = 1
+TabContainer.ZIndex = 2
 
 local TabTitle = Instance.new("TextLabel", MainFrame)
 TabTitle.Size = UDim2.new(1, -140, 0, 45)
@@ -66,6 +71,7 @@ TabTitle.Font = Enum.Font.GothamBold
 TabTitle.TextSize = 12
 TabTitle.TextTracking = 2
 TabTitle.TextXAlignment = Enum.TextXAlignment.Left
+TabTitle.ZIndex = 3
 
 -- Close Button
 local ExitBtn = Instance.new("TextButton", MainFrame)
@@ -75,6 +81,7 @@ ExitBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
 ExitBtn.Text = "X"
 ExitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 ExitBtn.Font = Enum.Font.GothamBold
+ExitBtn.ZIndex = 10
 Instance.new("UICorner", ExitBtn).CornerRadius = UDim.new(0, 4)
 ExitBtn.MouseButton1Click:Connect(function() iDyxeGui:Destroy() end)
 
@@ -88,18 +95,16 @@ local function createTab(name)
     local tab = Instance.new("ScrollingFrame", TabContainer)
     tab.Size = UDim2.new(1, 0, 1, 0)
     tab.BackgroundTransparency = 1
-    tab.ScrollBarThickness = 2
+    tab.ScrollBarThickness = 3
     tab.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 90)
     tab.Visible = false
+    tab.ZIndex = 3
+    -- Hardcode canvas size to prevent executor crash
+    tab.CanvasSize = UDim2.new(0, 0, 0, 1200) 
     
     local layout = Instance.new("UIListLayout", tab)
     layout.Padding = UDim.new(0, 8)
-    layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-    
-    -- Auto-resize canvas
-    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        tab.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 20)
-    end)
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
     
     Tabs[name] = tab
     return tab
@@ -128,6 +133,7 @@ local function createSidebarButton(name, text, yPos)
     btn.TextColor3 = Color3.fromRGB(150, 150, 160)
     btn.Font = Enum.Font.GothamBold
     btn.TextSize = 11
+    btn.ZIndex = 4
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
     
     btn.MouseButton1Click:Connect(function() switchTab(name) end)
@@ -135,13 +141,16 @@ local function createSidebarButton(name, text, yPos)
 end
 
 local function notify(text)
-    game.StarterGui:SetCore("SendNotification", {Title = "iDyxe 8.5", Text = text, Duration = 2})
+    pcall(function()
+        game.StarterGui:SetCore("SendNotification", {Title = "iDyxe 8.5", Text = text, Duration = 2})
+    end)
 end
 
 local function createToggle(tab, text, flagName)
     local frame = Instance.new("Frame", tab)
     frame.Size = UDim2.new(0.95, 0, 0, 36)
     frame.BackgroundColor3 = Color3.fromRGB(25, 27, 35)
+    frame.ZIndex = 4
     Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
     
     local label = Instance.new("TextLabel", frame)
@@ -153,18 +162,21 @@ local function createToggle(tab, text, flagName)
     label.Font = Enum.Font.GothamBold
     label.TextSize = 11
     label.TextXAlignment = Enum.TextXAlignment.Left
+    label.ZIndex = 5
     
     local toggleBtn = Instance.new("TextButton", frame)
     toggleBtn.Size = UDim2.new(0, 34, 0, 18)
     toggleBtn.Position = UDim2.new(1, -45, 0.5, -9)
     toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
     toggleBtn.Text = ""
+    toggleBtn.ZIndex = 5
     Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(1, 0)
     
     local circle = Instance.new("Frame", toggleBtn)
     circle.Size = UDim2.new(0, 14, 0, 14)
     circle.Position = UDim2.new(0, 2, 0.5, -7)
     circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    circle.ZIndex = 6
     Instance.new("UICorner", circle).CornerRadius = UDim.new(1, 0)
     
     Toggles[flagName] = false
@@ -192,18 +204,20 @@ local function createButton(tab, text)
     btn.TextColor3 = Color3.fromRGB(210, 210, 220)
     btn.Font = Enum.Font.GothamBold
     btn.TextSize = 11
+    btn.ZIndex = 4
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
     
     btn.MouseButton1Click:Connect(function()
         notify("Mengeksekusi: " .. text)
-        -- Tempat logika asli jika Tuan ingin mengembangkannya nanti
     end)
+    return btn
 end
 
 local function createDivider(tab, text)
     local frame = Instance.new("Frame", tab)
     frame.Size = UDim2.new(0.95, 0, 0, 20)
     frame.BackgroundTransparency = 1
+    frame.ZIndex = 4
     local label = Instance.new("TextLabel", frame)
     label.Size = UDim2.new(1, 0, 1, 0)
     label.BackgroundTransparency = 1
@@ -211,13 +225,14 @@ local function createDivider(tab, text)
     label.TextColor3 = Color3.fromRGB(80, 80, 90)
     label.Font = Enum.Font.GothamBold
     label.TextSize = 10
+    label.ZIndex = 5
 end
 
 -- ========================================== --
 --          MEMBANGUN SELURUH TAB             --
 -- ========================================== --
 
--- 1. TAB: iDyxe (Pengganti SXTHR)
+-- 1. TAB: iDyxe
 createSidebarButton("iDyxe", "iDyxe", 55)
 local t_iDyxe = createTab("iDyxe")
 createToggle(t_iDyxe, "ANTI FLING", "AntiFling")
@@ -280,11 +295,10 @@ createSidebarButton("Settings", "SETTINGS", 215)
 local t_Set = createTab("Settings")
 createButton(t_Set, "REJOIN SERVER")
 createButton(t_Set, "SERVER HOP")
-createButton(t_Set, "DESTROY iDyxe HUB")
--- Logika untuk menghancurkan hub dari setting
-t_Set:GetChildren()[#t_Set:GetChildren()].MouseButton1Click:Connect(function() iDyxeGui:Destroy() end)
+local destroyBtn = createButton(t_Set, "DESTROY iDyxe HUB")
+destroyBtn.MouseButton1Click:Connect(function() iDyxeGui:Destroy() end)
 
--- Mulai dengan tab iDyxe terbuka
+-- Inisialisasi Tab Awal
 switchTab("iDyxe")
 
-notify("iDyxe 8.5 telah mengambil alih sistem. 👑")
+notify("iDyxe 8.5 berhasil memuat semua senjata. 👑")
