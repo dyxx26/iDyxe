@@ -1,139 +1,93 @@
--- [[ iDyxe HUB 8.5 - ULTRA STABLE VERSION ]] --
--- Dibuat khusus untuk Tuan iDyxe agar kebal terhadap blank screen.
+-- [[ iDyxe HUB 8.5 - FORCE RENDER EDITION ]] --
+-- Dibuat khusus untuk Tuan iDyxe. Tanpa Folder, Tanpa Layout, Murni Render.
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
-local CoreGui = game:GetService("CoreGui")
 
--- Proteksi agar tidak double execute
-if PlayerGui:FindFirstChild("iDyxeIndustrial") then PlayerGui.iDyxeIndustrial:Destroy() end
+-- Hapus UI lama jika ada
+if PlayerGui:FindFirstChild("iDyxeForce") then PlayerGui.iDyxeForce:Destroy() end
 
 local iDyxeGui = Instance.new("ScreenGui")
-iDyxeGui.Name = "iDyxeIndustrial"
+iDyxeGui.Name = "iDyxeForce"
 iDyxeGui.ResetOnSpawn = false
-iDyxeGui.Parent = PlayerGui -- Menggunakan PlayerGui agar lebih stabil di Delta
+iDyxeGui.Parent = PlayerGui
 
--- Background Utama
+-- Background Utama (Sangat Sederhana agar tidak berat)
 local MainFrame = Instance.new("Frame", iDyxeGui)
-MainFrame.Size = UDim2.new(0, 500, 0, 400)
-MainFrame.Position = UDim2.new(0.5, -250, 0.5, -200)
-MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+MainFrame.Size = UDim2.new(0, 480, 0, 320)
+MainFrame.Position = UDim2.new(0.5, -240, 0.5, -160)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 MainFrame.BorderSizePixel = 2
 MainFrame.BorderColor3 = Color3.fromRGB(80, 140, 255)
 MainFrame.Active = true
 MainFrame.Draggable = true
 
--- Header Title
-local TitleBar = Instance.new("Frame", MainFrame)
-TitleBar.Size = UDim2.new(1, 0, 0, 35)
-TitleBar.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-TitleBar.BorderSizePixel = 0
+-- Title Bar
+local Title = Instance.new("TextLabel", MainFrame)
+Title.Size = UDim2.new(1, 0, 0, 35)
+Title.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+Title.Text = "  iDyxe 8.5 - FORCE RENDER"
+Title.TextColor3 = Color3.new(1, 1, 1)
+Title.Font = Enum.Font.Code
+Title.TextSize = 16
+Title.TextXAlignment = Enum.TextXAlignment.Left
 
-local TitleText = Instance.new("TextLabel", TitleBar)
-TitleText.Size = UDim2.new(1, -40, 1, 0)
-TitleText.Position = UDim2.new(0, 10, 0, 0)
-TitleText.BackgroundTransparency = 1
-TitleText.Text = "iDyxe 8.5 - MASTER CONTROL"
-TitleText.TextColor3 = Color3.new(1, 1, 1)
-TitleText.Font = Enum.Font.Code
-TitleText.TextSize = 16
-TitleText.TextXAlignment = Enum.TextXAlignment.Left
-
--- Close Button (X)
-local ExitBtn = Instance.new("TextButton", TitleBar)
-ExitBtn.Size = UDim2.new(0, 30, 0, 30)
-ExitBtn.Position = UDim2.new(1, -32, 0, 2)
-ExitBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
+-- Close Button
+local ExitBtn = Instance.new("TextButton", MainFrame)
+ExitBtn.Size = UDim2.new(0, 25, 0, 25)
+ExitBtn.Position = UDim2.new(1, -30, 0, 5)
+ExitBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
 ExitBtn.Text = "X"
 ExitBtn.TextColor3 = Color3.new(1, 1, 1)
-ExitBtn.Font = Enum.Font.GothamBold
 ExitBtn.MouseButton1Click:Connect(function() iDyxeGui:Destroy() end)
 
--- Area Isi Menu (MENGGUNAKAN GRID AGAR RAPI)
-local Container = Instance.new("ScrollingFrame", MainFrame)
-Container.Size = UDim2.new(1, -20, 1, -50)
-Container.Position = UDim2.new(0, 10, 0, 45)
-Container.BackgroundTransparency = 1
-Container.ScrollBarThickness = 5
-Container.CanvasSize = UDim2.new(0, 0, 0, 1000) -- Canvas panjang ke bawah
-
-local Grid = Instance.new("UIGridLayout", Container)
-Grid.CellSize = UDim2.new(0, 150, 0, 35)
-Grid.CellPadding = UDim2.new(0, 8, 0, 8)
-
--- Fungsi sakti pembuat tombol
-local function addBtn(name, color)
-    local b = Instance.new("TextButton", Container)
-    b.BackgroundColor3 = color or Color3.fromRGB(30, 32, 45)
+-- FUNGSI PENEMPATAN TOMBOL SECARA PAKSA (MANUAL COORDINATES)
+local function createForceBtn(name, x, y, color)
+    local b = Instance.new("TextButton", MainFrame)
+    b.Size = UDim2.new(0, 140, 0, 30)
+    b.Position = UDim2.new(0, x, 0, y)
+    b.BackgroundColor3 = color or Color3.fromRGB(40, 40, 50)
     b.Text = name
     b.TextColor3 = Color3.new(1, 1, 1)
     b.Font = Enum.Font.Code
-    b.TextSize = 11
-    b.BorderSizePixel = 0
-    local corner = Instance.new("UICorner", b)
-    corner.CornerRadius = UDim.new(0, 4)
+    b.TextSize = 10
+    b.BorderSizePixel = 1
     
     b.MouseButton1Click:Connect(function()
-        game.StarterGui:SetCore("SendNotification", {
-            Title = "iDyxe 8.5",
-            Text = "Executing: " .. name,
-            Duration = 2
-        })
+        game.StarterGui:SetCore("SendNotification", {Title = "iDyxe", Text = name .. " Executed!"})
     end)
 end
 
 -- ========================================== --
---          DAFTAR FITUR (SESUAI REQUEST)      --
+--  POSISI TOMBOL (X, Y) - DIPAKSA MUNCUL!     --
 -- ========================================== --
 
--- SXTHR / MAIN
-addBtn("ANTI FLING", Color3.fromRGB(60, 60, 80))
-addBtn("TOUCH FLING", Color3.fromRGB(60, 60, 80))
-addBtn("INVISIBILITY")
-addBtn("GOD MODE")
-addBtn("INFINITE JUMP")
-addBtn("NO CLIP")
+-- KOLOM 1
+createForceBtn("ANTI FLING", 15, 50, Color3.fromRGB(60, 60, 100))
+createForceBtn("TOUCH FLING", 15, 85, Color3.fromRGB(60, 60, 100))
+createForceBtn("GOD MODE", 15, 120)
+createForceBtn("INVISIBILITY", 15, 155)
+createForceBtn("INFINITE JUMP", 15, 190)
+createForceBtn("NO CLIP", 15, 225)
+createForceBtn("iDyxe FLY", 15, 260, Color3.fromRGB(30, 100, 30))
 
--- MOVEMENT
-addBtn("iDyxe AUTO WALK", Color3.fromRGB(40, 80, 40))
-addBtn("iDyxe AUTO TELEPORT", Color3.fromRGB(40, 80, 40))
-addBtn("iDyxe FLY")
-addBtn("iDyxe FLY V2")
-addBtn("iDyxe GLITCH")
-addBtn("iDyxe GLITCH V2")
+-- KOLOM 2
+createForceBtn("iDyxe AUTO WALK", 170, 50)
+createForceBtn("AUTO TELEPORT", 170, 85)
+createForceBtn("iDyxe GLITCH", 170, 120)
+createForceBtn("iDyxe GLITCH V2", 170, 155)
+createForceBtn("iDyxe ANIMATED", 170, 190)
+createForceBtn("iDyxe EMOTE", 170, 225)
+createForceBtn("KIMCOHI", 170, 260)
 
--- UNIVERSAL
-addBtn("iDyxe INJECTION", Color3.fromRGB(80, 40, 80))
-addBtn("iDyxe KIMCOHI")
-addBtn("iDyxe LAG SERVER")
-addBtn("iDyxe SPAM")
-addBtn("iDyxe CHARME")
-addBtn("iDyxe TALL MAN")
+-- KOLOM 3
+createForceBtn("TROLL PLAYER", 325, 50)
+createForceBtn("ESP PLAYER", 325, 85)
+createForceBtn("iDyxe FLING", 325, 120, Color3.fromRGB(100, 30, 30))
+createForceBtn("iDyxe BRING", 325, 155)
+createForceBtn("LAG SERVER", 325, 190)
+createForceBtn("FPS BOOSTER", 325, 225)
+createForceBtn("SKY CHANGER", 325, 260)
 
--- PLAYER TOOLS
-addBtn("TROLL PLAYER")
-addBtn("ESP PLAYER")
-addBtn("FAKE DONATE")
-addBtn("TRANSLATE")
-addBtn("iDyxe AURA")
-addBtn("iDyxe AURA FAST")
-
--- CHAOTIC
-addBtn("iDyxe FLING", Color3.fromRGB(100, 40, 40))
-addBtn("iDyxe BROKEN")
-addBtn("iDyxe CHAOTIC")
-addBtn("PART CONTROLLER")
-addBtn("iDyxe BRING")
-addBtn("iDyxe BRING V2")
-
--- SERVER
-addBtn("FPS BOOSTER", Color3.fromRGB(40, 60, 100))
-addBtn("ULTRA GRAPHICS")
-addBtn("FREECAM")
-addBtn("SPECTATE PLAYER")
-addBtn("TELEPORT PLAYER")
-addBtn("ALL SERVER TELEPORT")
-addBtn("SKY CHANGER")
-
-print("iDyxe Hub 8.5 Loaded!")
+print("iDyxe Force Hub Loaded!")
