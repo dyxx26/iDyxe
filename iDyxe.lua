@@ -938,33 +938,45 @@ MakeButton(ps, "🪜 HAPUS TANGGA (MESH)", 10, function()
     game:GetService("Chat"):Chat(Character.Head, "🗑️ Hapus " .. count .. " mesh tangga!", Enum.ChatColor.Blue)
 end)
 
--- TOPI BESAR (BLACKSCREEN ke orang lain)
 MakeButton(pc, "🎩 GIANT HAT BLACKSCREEN", 7, function()
     local head = Character:FindFirstChild("Head")
     if not head then return end
 
-    -- Buat part besar di atas kepala
+    -- Hapus hat lama kalau ada
+    for _, obj in pairs(workspace:GetChildren()) do
+        if obj.Name == "GiantHat" then obj:Destroy() end
+    end
+
     local hat = Instance.new("Part")
     hat.Name = "GiantHat"
-    hat.Size = Vector3.new(60, 0.5, 60)  -- sangat lebar
+    hat.Size = Vector3.new(80, 1, 80)
     hat.BrickColor = BrickColor.new("Really black")
     hat.Material = Enum.Material.SmoothPlastic
     hat.CanCollide = false
-    hat.Anchored = false
+    hat.Anchored = true  -- Anchored = true, kita gerakkan manual
     hat.CastShadow = true
     hat.Parent = workspace
 
-    -- Weld ke head supaya ikut bergerak
-    local weld = Instance.new("WeldConstraint")
-    weld.Part0 = head
-    weld.Part1 = hat
-    weld.Parent = hat
-
-    -- Posisikan tepat di atas kepala
-    hat.CFrame = head.CFrame * CFrame.new(0, 5, 0)
+    -- Ikuti kepala setiap frame
+    local hatConn
+    hatConn = RunService.Heartbeat:Connect(function()
+        if not hat or not hat.Parent then
+            hatConn:Disconnect()
+            return
+        end
+        local currentHead = Character:FindFirstChild("Head")
+        if currentHead then
+            hat.CFrame = currentHead.CFrame * CFrame.new(0, 6, 0)
+        end
+    end)
 
     game:GetService("Chat"):Chat(Character.Head, "🎩 Giant Hat ON!", Enum.ChatColor.Red)
-    game:GetService("Debris"):AddItem(hat, 30) -- hilang setelah 30 detik
+
+    -- Auto remove setelah 30 detik
+    task.delay(30, function()
+        if hatConn then hatConn:Disconnect() end
+        if hat and hat.Parent then hat:Destroy() end
+    end)
 end)
 
 MakeButton(pc, "🎩 REMOVE GIANT HAT", 8, function()
@@ -973,6 +985,7 @@ MakeButton(pc, "🎩 REMOVE GIANT HAT", 8, function()
     end
     game:GetService("Chat"):Chat(Character.Head, "🎩 Hat Removed!", Enum.ChatColor.Green)
 end)
+
 
 -- ============================================================
 print("✅ iDyxe 8.5 Loaded!")
